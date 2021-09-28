@@ -64,6 +64,7 @@ console.log(foo); //控制台打印出true
 
 let [ca,cb="JSPang"]=['技术胖']
 console.log(ca+cb); //控制台显示“技术胖JSPang”
+// console.log(ca+cbv); //控制台显示“技术胖undefined”
 
 // 需要注意的是undefined和null的区别。
 let [da,db="JSPang"]=['技术胖',undefined];
@@ -97,7 +98,7 @@ console.log(aafoo); //控制台输出jspang
 
 console.log('5. 字符串解构');
 // 字符串也可以解构，这是因为，此时字符串被转换成了一个类似数组的对象
-const [ea,eb,ec,ed,ee,ef]="JSPang";
+const [ea,eb,ec,ed,ee,ef]='Jspang'; //尽量使用单引号 单引号解压比双引号快
 console.log(ea);
 console.log(eb);
 console.log(ec);
@@ -106,4 +107,54 @@ console.log(ee);
 console.log(ef);
 
 console.log('--------------(第三节、变量的解构赋值)结束-------------------');
+console.log('--------------(第四节、扩展运算符和rest运算符)开始-------------------');
+// 可以很好的为我们解决参数和对象数组未知情况下的编程
+console.log('1. 对象扩展运算符（…）：');
+// 当编写一个方法时，我们允许它传入的参数是不确定的。这时候可以使用对象扩展运算符来作参数
+function jspang(...arg){
+  console.log(arg[0]);
+  console.log(arg[1]);
+  console.log(arg[2]);
+  console.log(arg[3]);
+}
+jspang(1,2,3);
+console.log('2. 扩展运算符的用处：');
+let arr11=['www','jspang','com'];
+let arr12=arr11; //赋值的是整个数组
+console.log(arr12);
+arr12.push('shengHongYu');
+console.log(arr11);
+// ['www','jspang','com']
+// ['www','jspang','com','shengHongYu']
+let arr21=['www','jspang','com'];
+//let arr2=arr1;
+let arr22=[...arr21]; //赋值的是数组里的元素
+console.log(arr22);
+arr22.push('shengHongYu');
+console.log(arr22);
+console.log(arr21);
+// ['www','jspang','com']
+// ['www','jspang','com','shengHongYu']
+// ['www','jspang','com']
+
+console.log('2. rest运算符');
+function jspang1(first,second,...arg) { //第一个参数first是确定的
+  console.log(arg.length);
+  console.log(first,'first'); //1
+  console.log(second ,'second');
+
+}
+jspang1(1,441,9,1,1,1,9,1,11,9,1,) //10
+console.log('------------------分割线-------------');
+// 如何循环输出rest运算符
+// for…of的循环可以避免我们开拓内存空间，增加代码运行效率
+function jspang2(first,...arg){
+  console.log(first,'first');
+  for(let val of arg){
+    console.log(val);
+  }
+}
+jspang2(0,1,2,3,4,5,6,7);
+
+console.log('--------------(第四节、扩展运算符和rest运算符)结束-------------------');
 
