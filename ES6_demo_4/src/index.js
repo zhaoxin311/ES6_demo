@@ -42,3 +42,50 @@ let arr4=['jspang','技术胖','技术帅','小仙女']
 console.log(arr4.find(function(value,index,arr4){
   return value =='小小仙女'
 }));
+
+console.log('第八节、ES6中新增的数组知识(2)');
+// fill( )实例方法：
+console.log('1. fill( )实例方法：');
+// fill()也是一个实例方法，它的作用是把数组进行填充，
+// 它接收三个参数，
+// 第一个参数是填充的变量，
+// 第二个是开始填充的位置，
+// 第三个是填充到的位置。
+let arr5=[0,1,2,3,4,5,6,7,8,9];
+arr5.fill('jspang',2,5);
+console.log(arr5);
+// 把数组从第二位到第五位用jspang进行填充
+// 将234全改成了jspang
+
+console.log('2. 数组的遍历');
+console.log('for...of循环：');
+let arr6=['za','sha','hehe','haha']
+for(let item of arr6){
+  console.log(item);
+}
+
+console.log('for…of数组索引:');
+let arr7=['za','sha','hehe','haha']
+for(let index of arr7.keys()){
+  console.log(index);
+}
+
+console.log('同时输出数组的内容和索引：');
+let arr8=['za','sha','hehe','haha']
+for(let [index,val] of arr8.entries()){
+  console.log(index + ':' +val);
+}
+
+console.log('3. entries( )实例方法：');
+// entries()实例方式生成的是Iterator形式的数组，
+// 那这种形式的好处就是可以让我们在需要时用next()手动跳转到下一个值。
+let arr9=['jspang','技术胖','大胖逼逼叨']
+let list=arr9.entries();
+console.log(list.next().value);
+console.log(list.next().value);
+console.log(list.next().value);
+console.log(list.next().value);
+
+
+
+
