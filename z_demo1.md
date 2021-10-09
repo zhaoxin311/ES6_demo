@@ -136,9 +136,81 @@ withinErrorMargin(0.1 + 0.2, 0.3) // true
 withinErrorMargin(1.1 + 1.3, 2.4) // true
 ```
 
-
-
 ## 7.安全整数和 Number.isSafeInteger()
+JavaScript能够表示的整数范围为 -2^53 到 2^53 之间(不含两个端点)，超过这个范围 无法精确表示这个值 。
+```
+Math.pow(2, 53) // 9007199254740992
+
+9007199254740992  // 9007199254740992
+9007199254740993  // 9007199254740992
+
+Math.pow(2, 53) === Math.pow(2, 53) + 1  // true
+```
+上边代码中，超过2的53次方之后 就不精确了
+
+ES6 引入了Number.MAX_SAFE_INTEGER和Number.MIN_SAFE_INTEGER这两个常量，用来表示这个范围的上下限。
+```
+Number.MAX_SAFE_INTEGER === Math.pow(2, 53) - 1
+// true
+Number.MAX_SAFE_INTEGER === 9007199254740991
+// true
+
+Number.MIN_SAFE_INTEGER === -Number.MAX_SAFE_INTEGER
+// true
+Number.MIN_SAFE_INTEGER === -9007199254740991
+// true
+```
+Number.isSafeInteger()则是用来判断一个整数是否落在这个范围之内。
+```
+Number.isSafeInteger('a') // false
+Number.isSafeInteger(null) // false
+Number.isSafeInteger(NaN) // false
+Number.isSafeInteger(Infinity) // false
+Number.isSafeInteger(-Infinity) // false
+
+Number.isSafeInteger(3) // true
+Number.isSafeInteger(1.2) // false
+Number.isSafeInteger(9007199254740990) // true
+Number.isSafeInteger(9007199254740992) // false
+
+Number.isSafeInteger(Number.MIN_SAFE_INTEGER + 1) // true
+Number.isSafeInteger(Number.MIN_SAFE_INTEGER - 1) // false
+Number.isSafeInteger(Number.MIN_SAFE_INTEGER) // true
+Number.isSafeInteger(Number.MAX_SAFE_INTEGER) // true
+Number.isSafeInteger(Number.MAX_SAFE_INTEGER + 1) // false
+Number.isSafeInteger(Number.MAX_SAFE_INTEGER - 1) // true
+```
+函数的实现：
+```
+Number.isSafeInteger = function (n) {
+  return (typeof n === 'number' &&
+    Math.round(n) === n &&
+    Number.MIN_SAFE_INTEGER <= n &&
+    n <= Number.MAX_SAFE_INTEGER);
+}
+```
+> ### 扩展 Math.round()
+> 主要分为两种情况：
+> 1. 形如 Math.round(n)
+> 
+> 此类实行**向右取整**的方法 对于数字 .5 有效
+> ```
+> Math.round(1.5) = 2,
+> Math.round(-1.5) = -1
+> ```
+2. 形如 Math.round(2.60f)
+
+此时应该返回**最接近它的整数**，若有两个返回接近的整数，则取最大的那个，
+```
+Math.round(2.40f) = 2
+Math.round(-2.40f) = -2
+```
+
+
+
+
+
+
 ## 8.Math 对象的扩展
 ## 9.Math.trunc()
 ## 10.Math.sign()
