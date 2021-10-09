@@ -280,6 +280,44 @@ Math.floor() 函数返回 小于或等于一个给定数字的最大整数。
 ```
 
 ### 8.2 Math.sign()
+Math.sign()方法用来判断一个数到底是正数、负数、还是零。对于非数值 会将其先转换成数值。
+
+他会返回五种值：
+
+* 参数为正数，返回+1
+* 参数为负数，返回-1
+* 参数为0，返回0
+* 参数为-0，返回-0
+* 其他值，返回NaN
+
+```
+Math.sign(-5) // -1
+Math.sign(5) // +1
+Math.sign(0) // +0
+Math.sign(-0) // -0
+Math.sign(NaN) // NaN
+```
+如果参数为非数值，会自动转为数值。对于那些无法转为数值的值，会返回NaN
+```
+Math.sign('')          //0
+Math.sign(true)        //+1
+Math.sign(false)       //0
+Math.sign(null)        //0
+Math.sign('9')         //+1
+Math.sign('f00')       //NaN
+Math.sign()            //NaN
+Math.sign(undefined)   //NaN
+```
+该方法原理：
+```
+Math.sign = Math.sign || function(x){
+  x = +x;
+  if(x === 0 || isNaN(x)){
+    return x;
+  }
+  return x > 0 ? 1 : -1;
+}
+```
 
 ### 8.3 Math.cbrt()
 
