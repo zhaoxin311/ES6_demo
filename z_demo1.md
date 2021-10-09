@@ -189,15 +189,15 @@ Number.isSafeInteger = function (n) {
     n <= Number.MAX_SAFE_INTEGER);
 }
 ```
-> ### 扩展 Math.round()
-> 主要分为两种情况：
-> 1. 形如 Math.round(n)
-> 
-> 此类实行**向右取整**的方法 对于数字 .5 有效
-> ```
-> Math.round(1.5) = 2,
-> Math.round(-1.5) = -1
-> ```
+### 扩展 Math.round()
+主要分为两种情况：
+1. 形如 Math.round(n)
+
+此类实行**向右取整**的方法 对于数字 .5 有效
+```
+Math.round(1.5) = 2,
+Math.round(-1.5) = -1
+```
 2. 形如 Math.round(2.60f)
 
 此时应该返回**最接近它的整数**，若有两个返回接近的整数，则取最大的那个，
