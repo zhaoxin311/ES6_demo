@@ -108,23 +108,23 @@ Number('Oo10')  //8
 
 
 
-安全整数和 Number.isSafeInteger()
-Math 对象的扩展
-Math.trunc()
-Math.sign()
-Math.cbrt()
-Math.clz32()
-Math.imul()
-Math.fround()
-Math.hypot()
-对数方法
-双曲函数方法
-BigInt 数据类型
-简介
-BigInt 函数
-转换规则
-数学运算
-其他运算
+## 7.安全整数和 Number.isSafeInteger()
+## 8.Math 对象的扩展
+## 9.Math.trunc()
+## 10.Math.sign()
+## 11.Math.cbrt()
+## 12.Math.clz32()
+## 13.Math.imul()
+## 14.Math.fround()
+## 15.Math.hypot()
+## 16.对数方法
+## 17.双曲函数方法
+## 18.BigInt 数据类型
+## 19.简介
+## 20.BigInt 函数
+## 21.转换规则
+## 22.数学运算
+## 23.其他运算
 
 
 
