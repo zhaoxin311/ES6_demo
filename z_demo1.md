@@ -93,18 +93,48 @@ Number('Oo10')  //8
 
 对于数值的精确度要求较高的 不建议使用Number.isInteger()来判断该数值是否为整数。
 
+### 6. Number.EPSILON
+表示极小的常量 表示1与大于1的最小的浮点数之间的差
 
-## 6. Number.EPSILON
+对于64位浮点数来说 大于1 的最小浮点数相当于二进制的1.00...001，小数点后有连续51个零。这个数值减去1之后，就等于2的-52次方。
 
+```
+Number.EPSILON === Math.pow(2,-52) //true
+Number.EpSILON  //2.220446049250313e-16
+Number.EPSILON.toFixed(20)   // "0.00000000000000022204"
+toFixed(n) 方法可把 Number 四舍五入为指定小数位数n的数字。
+```
+Number.EPSILON实际上是JavaScript能够表示的最小精度，引入的目的是 为浮点数计算 设置一个误差范围。
+```
+0.1 + 0.2
+// 0.30000000000000004
 
+0.1 + 0.2 - 0.3
+// 5.551115123125783e-17
 
+5.551115123125783e-17.toFixed(20)
+// '0.00000000000000005551'
 
+0.1 + 0.2 === 0.3 // false
+```
+Number.EPSILON可以用来设置“能够接受的误差范围”
 
+误差范围设为2的-50次方（即 Number.EPSILON * Math.pow(2,2)）即如果两个浮点数的差小于这个值，我们就认为这两个浮点数相等。
+```
+5.551115123125783e-17 < Number.EPSILON * Math.pow(2, 2)  // true
+```
+因此，Number.EPSILON的实质是一个可以接受的最小误差范围。
+```
+function withinErrorMargin (left, right) {
+  return Math.abs(left - right) < Number.EPSILON * Math.pow(2, 2);
+}
 
+0.1 + 0.2 === 0.3 // false
+withinErrorMargin(0.1 + 0.2, 0.3) // true
 
-
-
-
+1.1 + 1.3 === 2.4 // false
+withinErrorMargin(1.1 + 1.3, 2.4) // true
+```
 
 
 
