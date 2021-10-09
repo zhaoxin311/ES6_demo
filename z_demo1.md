@@ -320,8 +320,46 @@ Math.sign = Math.sign || function(x){
 ```
 
 ### 8.3 Math.cbrt()
+Math.cbrt() 该方法用于计算一个数的立方根
+```
+Math.cbrt(-1) // -1
+Math.cbrt(0)  // 0
+Math.cbrt(1)  // 1
+Math.cbrt(8)  // 2
+Math.cbrt(2)  // 1.2599210498948732
+```
+对于非数值，会先使用Number()方法将其转换成数值
+```
+Math.cbrt('8') // 2
+Math.cbrt('hello') // NaN
+```
+该方法的原理：
+```
+Math.cbrt = Math.cbrt || function(x){
+  var y = Math.pow(Math.abs(x), 1/3);
+  return x < 0 ? -y : y;
+}
+
+Math.pow() 函数返回基数（base）的指数（exponent）次幂.
+Math.pow(2,3)  //2的3次方 8 
+
+Math.abs(x) 函数返回指定数字 “x“ 的绝对值。
+Math.abs(-2);       // 2
+```
 
 ### 8.4 Math.clz32()
+Math.clz32()方法将参数转为 32 位无符号整数的形式，然后返回这个 32 位值里面有多少个前导 0。
+```
+Math.clz32(0) // 32
+Math.clz32(1) // 31
+Math.clz32(1000) // 22
+Math.clz32(0b01000000000000000000000000000000) // 1
+Math.clz32(0b00100000000000000000000000000000) // 2
+```
+
+
+
+
 
 ### 8.5 Math.imul()
 
