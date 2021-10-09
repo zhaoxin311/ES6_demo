@@ -189,6 +189,43 @@ Number.isSafeInteger = function (n) {
     n <= Number.MAX_SAFE_INTEGER);
 }
 ```
+使用这个函数时,需要注意.验证运算结果是否落在安全整数的范围内,不要只验证运算结果,同时还要验证参与运算的每个值.
+```
+Number.isSafeInteger(9007199254740993)
+// false
+Number.isSafeInteger(990)
+// true
+Number.isSafeInteger(9007199254740993 - 990)
+// true
+9007199254740993 - 990
+// 返回结果 9007199254740002
+// 正确答案应该是 9007199254740003
+```
+某个数超出了精度范围，导致在计算机内部，以9007199254740992的形式存储
+```
+9007199254740993 === 9007199254740992
+// true
+```
+所以，如果只验证运算结果是否为安全整数，很可能得到错误结果。下面的函数可以同时验证两个运算数和运算结果。
+```
+function trusty (left, right, result) {
+  if (
+    Number.isSafeInteger(left) &&
+    Number.isSafeInteger(right) &&
+    Number.isSafeInteger(result)
+  ) {
+    return result;
+  }
+  throw new RangeError('Operation cannot be trusted!');
+}
+
+trusty(9007199254740993, 990, 9007199254740993 - 990)
+// RangeError: Operation cannot be trusted!
+
+trusty(1, 2, 3)
+// 3
+```
+
 ### 扩展 Math.round()
 主要分为两种情况：
 1. 形如 Math.round(n)
@@ -206,19 +243,54 @@ Math.round(2.40f) = 2
 Math.round(-2.40f) = -2
 ```
 
-
-
-
-
-
 ## 8.Math 对象的扩展
-## 9.Math.trunc()
-## 10.Math.sign()
-## 11.Math.cbrt()
-## 12.Math.clz32()
-## 13.Math.imul()
-## 14.Math.fround()
-## 15.Math.hypot()
+ES6在Math对象上新增了17个与数学相关的方法。这些方法都是静态方法只能在Math对象上调用
+
+### 8.1 Math.trunc()
+Math.trunc()该方法用于去除一个数的小数部分，返回整数部分
+```
+Math.trunc(4.1) // 4
+Math.trunc(4.9) // 4
+Math.trunc(-4.1) // -4
+Math.trunc(-4.9) // -4
+Math.trunc(-0.1234) // -0
+```
+对于非数值，Math.trunc内部使用Number方法将其先转为数值
+```
+Math.trunc('123.234')   //123
+Math.trunc(true)   //1
+Math.trunc(false)   //0
+Math.trunc(null)   //0
+```
+对于空值和无法截取整数的值 返回NaN
+```
+Math.trunc(NaN)  //NaN
+Math.trunc('foo')  //NaN
+Math.trunc()  //NaN
+Math.trunc(undefined)  //NaN
+```
+该方法原理：
+```
+Math.trunc = Math.trunc || function(x){
+  return x <0 ? Math.ceil(x) : Math.floor(x);
+};
+
+Math.ceil() 函数返回  大于或等于一个给定数字的最小整数。
+Math.floor() 函数返回 小于或等于一个给定数字的最大整数。
+```
+
+### 8.2 Math.sign()
+
+### 8.3 Math.cbrt()
+
+### 8.4 Math.clz32()
+
+### 8.5 Math.imul()
+
+### 8.6 Math.fround()
+
+### 8.7 Math.hypot()
+
 ## 16.对数方法
 ## 17.双曲函数方法
 ## 18.BigInt 数据类型
