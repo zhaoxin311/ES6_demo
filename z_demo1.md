@@ -402,17 +402,65 @@ Math.imul(0x7fffffff, 0x7fffffff) // 1
 
 由于以上原因，Math.iuml()方法的出现就解决了此类问题，该方法可以返回正确的结果  结果为1。
 
-
-
-
-
-
-
-
-
 ### 8.6 Math.fround()
+Math.fround()方法返回一个数的32位单精度浮点数形式
+
+对于32位单精度格式来说，数值精度是24位（1位隐藏位和23位有效位），对于-2的24次方到2的24次方之间的整数(不含两个端点)，返回的结果与参数本身保持一致。
+```
+Math.fround(0)   // 0
+Math.fround(1)   // 1
+Math.fround(2 ** 24 - 1)   // 16777215
+```
+如果参数的绝对值超过了2得24次方，则返回得结果会失去精度。
+```
+Math.fround(2 ** 24)   // 16777216
+Math.fround(2 ** 24 + 1)   // 16777216
+```
+Math.fround()方法的主要作用是将64位双精度浮点数转换为32位单精度浮点数。
+
+如果小数的精度超过24个二进制位，返回值就不同于原值。否则，返回值与64位双精度值保持一致。
+```
+// 未丢失有效精度
+Math.fround(1.125) // 1.125
+Math.fround(7.25)  // 7.25
+
+// 丢失精度
+Math.fround(0.3)   // 0.30000001192092896
+Math.fround(0.7)   // 0.699999988079071
+Math.fround(1.0000000123) // 1
+```
+对于NaN和Infinity，此方法会返回原值。对于其他类型的非数值，该方法会先将其转换成数值类型，再返回单精度浮点数
+```
+Math.fround(NaN)    //NaN
+Math.fround(Infinity) //Infinity
+
+Math.fround('5')      // 5
+Math.fround(true)     // 1
+Math.fround(null)     // 0
+Math.fround([])       // 0
+Math.fround({})       // NaN
+```
+该方法实现原理：
+```
+Math.fround = Math.fround || function(x){
+  return new Float32Array([x])[0]
+}
+
+Float32Array 类型数组代表的是平台字节顺序为32位的浮点数型数组(对应于 C 浮点数据类型) 。
+```
 
 ### 8.7 Math.hypot()
+Math.hyot()方法返回所有参数的平方和的平方根。
+```
+Math.hypot(3, 4);        // 5
+Math.hypot(3, 4, 5);     // 7.0710678118654755
+Math.hypot();            // 0
+Math.hypot(NaN);         // NaN
+Math.hypot(3, 4, 'foo'); // NaN
+Math.hypot(3, 4, '5');   // 7.0710678118654755
+Math.hypot(-3);          // 3
+```
+如果参数不是数值，该方法会将其转换成数值，只有一个参数无法转换成数值，结果就返回NaN。
 
 ## 16.对数方法
 ## 17.双曲函数方法
