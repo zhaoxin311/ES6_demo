@@ -463,10 +463,78 @@ Math.hypot(-3);          // 3
 如果参数不是数值，该方法会将其转换成数值，只有一个参数无法转换成数值，结果就返回NaN。
 
 ### 8.8 对数方法
+ES6新增了4个对数相关方法
+1. Math.expm1()
+Math.expm1(x)返回e的x次方再减去1，即Math.exp(x)-1
+```
+Math.expm1(-1) // -0.6321205588285577
+Math.expm1(0)  // 0
+Math.expm1(1)  // 1.718281828459045
+```
+该方法相关原理代码解释：
+```
+Math.expm1 = Math.expm1 || function(x){
+  return Math.exp(x)-1
+}
 
+Math.exp(1);  // 2.718281828459045
+Math.exp() 函数返回 ex，x 表示参数，e 是自然对数的底数，值为2.718281828459045。
+```
 
+2. Math.log1p()
+Math.log1p()方法返回 1+x 的自然对数，即Math.log(1+x)。如果x小于 -1，返回NaN。
+```
+Math.log1p(1)===Math.log(2)
+Math.log1p(0)===Math.log(1)
+Math.log1p(-1)===Math.log(0)  //-Infinity
+Math.log1p(-2)===Math.log(-1)  //NaN
+```
+该方法相关原理代码解释：
+```
+Math.log1p = Math.log1p || function(x){
+  return Math.log(x+1);
+} 
+```
 
+3. Math.log10()
+Math.log10()该方法返回以10为底的x的对数。如果x为0,则返回-Infinity，如果x<0,则返回NaN
+```
+Math.log10(2)  //
+Math.log10(1)
+Math.log10(0)  //-Infinity
+Math.log10(-2) //NaN
+Math.log10(100000)  //5
+```
+该方法相关原理代码解释：
+```
+Math.log10 = Math.log10 ||function(x){
+  return Math.log(x) / Math.LN10;
+}
 
+Math.LN10 属性表示 10 的自然对数，约为 2.302：
+```
+
+4. Math.log2()
+Math.log2()方法返回以2为底的x的对数，如果x为0,则返回-Infinity，如果x<0,则返回NaN
+```
+Math.log2(3)
+Math.log2(2)
+Math.log2(1)  //0
+Math.log2(0)  //-Infinity
+Math.log2(-1) //NaN
+Math.log2(-2) //NaN
+Math.log2(1024) //10
+Math.log2(536870912)  //29
+Math.log2(1 << 29)  //1 << 29 等于536870912
+```
+该方法相关原理代码解释：
+```
+Math.log2 = Math.log2 ||function(x){
+  return Math.log(x) / Math.LN2;
+}
+
+Math.LN2 属性表示 2 的自然对数，约为 0.693
+```
 
 
 
