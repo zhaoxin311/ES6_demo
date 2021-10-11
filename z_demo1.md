@@ -685,9 +685,45 @@ BigInt.parseInt('9007199254740993', 10)
 
 对于二进制数组，BigInt 新增了两个类型BigUint64Array和BigInt64Array，这两种数据类型返回的都是64位 BigInt。DataView对象的实例方法DataView.prototype.getBigInt64()和DataView.prototype.getBigUint64()，返回的也是 BigInt。
 
-
 ### 9.3 转换规则
+可以使用Boolean() 、Number()、和 String()这三种方法，将BigInt可以转换成布尔值、数值和字符串类型
+```
+Boolean(0n) // false
+Boolean(1n) // true
+Number(1n)  // 1
+String(1n)  // "1" 转为字符串时后缀n会消失。
+```
+另外，取反运算符(!)也可以将BigInt转为布尔值。
+```
+!0n // true
+!1n // false
+```
+
 ### 9.4 数学运算
+数学运算方面，BigInt类型的 + - * 和 ** 这四个二元运算符，与Number类型的行为一致。除法运算 / 会舍去小数部分，返回一个整数部分。例如： 9n / 5n   // 1n
+
+几乎所有的数值运算符都可以用在BigInt，但是有两个例外：
+- 不带符号的右移位运算符  >>>
+- 一元的求正运算符  +
+这两个运算符用在BigInt会报错，前者因为>>>运算符是不带符号的，但是BigInt总是带符号的，导致该运算符无意义，完全等同于右移运算符>>.后者是因为一元运算符+在asm.js里面总是返回Number类型，为了不破坏 asm.js 就规定+1n会报错。
+
+注意：BigInt 不能与普通数值进行混合运算。 1n + 1.3 // 报错
+上面代码报错是因为无论返回的是 BigInt 或 Number，都会导致丢失精度信息。
+
+同样的原因，如果一个标准库函数的参数预期是 Number 类型，但是得到的是一个 BigInt，就会报错。
+```
+// 错误的写法
+Math.sqrt(4n) // 报错
+
+// 正确的写法
+Math.sqrt(Number(4n)) // 2
+```
+上面代码中，Math.sqrt的参数预期是 Number 类型，如果是 BigInt 就会报错，必须先用Number方法转一下类型，才能进行计算。
+
+asm.js 里面，|0跟在一个数值的后面会返回一个32位整数。根据不能与 Number 类型混合运算的规则，BigInt 如果与|0进行运算会报错。
+
+1n | 0 // 报错
+
 ### 9.5 其他运算
 
 
