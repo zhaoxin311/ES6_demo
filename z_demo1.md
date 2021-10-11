@@ -618,8 +618,74 @@ for (let i = 1n; i <= 70n; i++) {
 console.log(p); // 11978571...00000000n
 ```
 
+### 9.2 BigInt 函数 (后半部分不太明白)
+将其他类型的数据转换成BigInt类型，转换规则基本与Number()一致。
+```
+BigInt(123) // 123n
+BigInt('123') // 123n
+BigInt(false) // 0n
+BigInt(true) // 1n
+```
+BigInt()函数必须有参数，而且参数必须可以正常转换成数值，下边实例都会报错：
+```
+new BigInt() // new BigInt() // TypeError
+BigInt(undefined) //TypeError 类型错误
+BigInt(null) // TypeError
+BigInt('123n') // SyntaxError  语法错误
+BigInt('abc') // SyntaxError
+BigInt(undefined) //TypeError
+BigInt(null) // TypeError
+BigInt('123n') // SyntaxError
+BigInt('abc') // SyntaxError
 
-### 9.2 BigInt 函数
+//参数如果是小数 也会报错
+BigInt(1.5)  //RangeError  范围错误
+BigInt('1.5')  // SyntaxError
+```
+BigInt 继承了Object对象的两个实例方法
+- BigInt.prototype.toString()
+- BigInt.prototype.valueOf()
+
+还继承了Number对象的实例方法
+- BigInt.prototype.toLocaleString()
+
+此外还提供了三个静态方法
+- BigInt.asUintN(width,BigInt) : 给定的BigInt转为0到2的width次方-1之间对应的值。
+- BigInt.asIntN(width,BigInt) : 给定的BigInt转为-2的width减1次方到2的width减1次方减1之间对应的值。
+- BigInt.parseInt(string[,radix]) : 近似于NUmber.parseInt(),将一个字符串转换成指定进制的BigInt。
+
+```
+const max = 2n ** (64n - 1n) - 1n;
+
+BigInt.asIntN(64, max)
+// 9223372036854775807n
+BigInt.asIntN(64, max + 1n)
+// -9223372036854775808n
+BigInt.asUintN(64, max + 1n)
+// 9223372036854775808n
+```
+max是64位带符号的 BigInt 所能表示的最大值。如果对这个值加1n，BigInt.asIntN()将会返回一个负值，因为这时新增的一位将被解释为符号位。而BigInt.asUintN()方法由于不存在符号位，所以可以正确返回结果。
+
+如果BigInt.asIntN()和BigInt.asUintN()指定的位数，小于数值本身的位数，那么头部的位将被舍弃。
+```
+const max = 2n ** (64n - 1n) - 1n;
+
+BigInt.asIntN(32, max) // -1n
+BigInt.asUintN(32, max) // 4294967295n
+```
+上面代码中，max是一个64位的 BigInt，如果转为32位，前面的32位都会被舍弃。
+```
+// Number.parseInt() 与 BigInt.parseInt() 的对比
+Number.parseInt('9007199254740993', 10)
+// 9007199254740992
+BigInt.parseInt('9007199254740993', 10)
+// 9007199254740993n
+```
+上面代码中，由于有效数字超出了最大限度，Number.parseInt方法返回的结果是不精确的，而BigInt.parseInt方法正确返回了对应的 BigInt。
+
+对于二进制数组，BigInt 新增了两个类型BigUint64Array和BigInt64Array，这两种数据类型返回的都是64位 BigInt。DataView对象的实例方法DataView.prototype.getBigInt64()和DataView.prototype.getBigUint64()，返回的也是 BigInt。
+
+
 ### 9.3 转换规则
 ### 9.4 数学运算
 ### 9.5 其他运算
