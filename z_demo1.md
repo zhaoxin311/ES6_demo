@@ -725,14 +725,26 @@ asm.js 里面，|0跟在一个数值的后面会返回一个32位整数。根据
 1n | 0 // 报错
 
 ### 9.5 其他运算
-
-
-
-
-
-
-
-
-
-
+BigInt 对应的布尔值，与 Number 类型一致，即0n会转为false，其他值转为true。
+```
+//0n对应false，所以会进入else子句。
+if (0n) {
+  console.log('if');
+} else {
+  console.log('else');
+}
+// else
+```
+比较运算符（比如>）和相等运算符（==）允许 BigInt 与其他类型的值混合计算，因为这样做不会损失精度。
+```
+0n < 1 // true
+0n < true // true
+0n == 0 // true
+0n == false // true
+0n === 0 // false
+```
+BigInt 与字符串混合运算时，会先转为字符串，再进行运算。
+```
+'' + 123n // "123"
+```
 
