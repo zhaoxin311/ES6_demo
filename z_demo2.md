@@ -147,14 +147,155 @@ m2({z: 3}) // [undefined, undefined]
 写法二函数参数的默认值是一个有具体属性的对象，但是没有设置对象解构赋值的默认值。
 
 ### 1.3 参数默认值的位置
+定义默认值的参数，应该是函数的尾参数，这样比较容易看出来到底省略了哪些参数。如果非尾部的参数设置了默认值，实际上这个参数是没法省略的。
+```
+// 例一
+function f(x = 1, y) {
+  return [x, y];
+}
+
+f() // [1, undefined]
+f(2) // [2, undefined]
+f(, 1) // 报错
+f(undefined, 1) // [1, 1]
+
+// 例二
+function f(x, y = 5, z) {
+  return [x, y, z];
+}
+
+f() // [undefined, 5, undefined]
+f(1) // [1, 5, undefined]
+f(1, ,2) // 报错
+f(1, undefined, 2) // [1, 5, 2]
+```
+上述代码中，有默认值的参数不是尾参数。这时，无法只省略该参数，而不省略它后面的参数，除非显式输入undefined。
+
+如果传入undefined，将触发该参数等于默认值，null则没有这个效果。
+```
+function foo(x = 5, y = 6) {
+  console.log(x, y);
+}
+
+foo(undefined, null)
+// 5 null
+```
+上面代码中，x参数对应undefined，结果触发了默认值，y参数等于null，就没有触发默认值
+
 ### 1.4 函数的 length 属性
+指定了默认值以后，函数的length属性，将返回**没有指定默认值**的参数个数。也就是说，指定了默认值后，length属性将**失真**。
+```
+(function (a) {}).length // 1
+(function (a = 5) {}).length // 0
+(function (a, b, c = 5) {}).length // 2
+```
+length属性的含义是，该函数预期传入的参数个数。当某个参数制定了默认值时，预期传入的参数个数就不包含这个参数了。
+```
+(function(...args) {}).length // 0
+
+//如果设置了默认值的参数**不是尾参数**，那么length属性也**不再计入后面**的参数了。
+(function (a = 0, b, c) {}).length // 0
+(function (a, b = 1, c) {}).length // 1
+```
+
 ### 1.5 作用域
+
+```
+var x = 1;
+
+function f(x, y = x) {
+  console.log(y);
+}
+
+f(2) // 2
+```
+上述代码中，参数y的默认值等于变量x。调用函数f时，参数形成一个单独的作用域。在作用域内部，默认值变量x指向第一个参数x，而不是全局变量x，所以输出的是2.
+
+```
+let x = 1;
+
+function f(y = x) {
+  let x = 2;
+  console.log(y);
+}
+
+f() // 1
+```
+上述代码中，函数f调用时，参数y=x形成了一个单独的作用域。在作用域内部，变量x本身没有定义，所以指向外层的全局变量x。函数在调用时，函数体内部的变量x对默认值变量x不产生任何影响。
+
+如果此时，全局变量x不存在，就会报错。
+
+```
+var x = 1;
+
+function foo(x = x) {
+  // ...
+}
+
+foo() // ReferenceError: x is not defined
+//ReferenceError（引用错误） 对象代表当一个不存在的变量被引用时发生的错误。
+```
+上述代码中，参数x=x形成了一个单独的作用域。实际执行的是let x=x，由于暂时性死区的原因，回报引用错误。
+
+```
+let foo = 'outer';
+
+function bar(func = () => foo) {
+  let foo = 'inner';
+  console.log(func());
+}
+
+bar(); // outer
+```
+上述代码中，函数bar的参数func的默认值是一个匿名函数，返回变量foo。函数参数形成的单独作用域里边，并没有定义变量foo，所以foo指向的是外层的全局变量foo，因此输出outer。
+
+```
+var x = 1;
+function foo(x, y = function() { x = 2; }) {
+  var x = 3;
+  y();
+  console.log(x);
+}
+
+foo() // 3
+x // 1
+```
+上述代码中，函数foo形成一个单独的作用域。在该作用域内，首先声明了变量x，然后声明了变量y，y的默认值是一个匿名函数，在匿名函数内部的变量x，指向同一作用域的第一个参数x。函数foo内部有声明了一个内部变量x，该变量与第一个参数x不在同一个作用域，所以不是同一个变量，因此在执行y后，内部变量x与全局变量x都没有变化
+
+```
+var x = 1;
+function foo(x, y = function() { x = 2; }) {
+  x = 3;
+  y();
+  console.log(x);
+}
+
+foo() // 2
+x // 1
+```
+上述代码中，去掉了var ，函数foo的内部变量x就指向第一个参数x，与匿名函数内部的x是一致的，最后输出的就是2，而最外层的全局变量x不受影响。
+
 ### 1.6 应用
+利用参数默认值，可以指定某一个参数不得省略，如果省略就抛出一个错误。
+```
+function throwIfMissing() {
+  throw new Error('Missing parameter');
+}
 
+function foo(mustBeProvided = throwIfMissing()) {
+  return mustBeProvided;
+}
 
+foo()
+// Error: Missing parameter
+```
+上面代码的foo函数，如果调用的时候没有参数，就会调用默认值throwIfMissing函数，从而抛出一个错误。
 
+从上面代码还可以看到，参数mustBeProvided的默认值等于throwIfMissing函数的运行结果（注意函数名throwIfMissing之后有一对圆括号），这表明参数的默认值**不是在定义时执行，而是在运行时执行**。如果参数已经赋值，默认值中的函数就不会运行。
 
+另外，可以将参数默认值设为undefined，表明这个参数是可以省略的。
 
+function foo(optional = undefined) { ··· }
 
 
 
