@@ -344,8 +344,36 @@ push(a,1,2,3)
 ```
 **注意**，rest 参数之后不能再有其他参数（即只能是最后一个参数），否则会报错。
 
-严格模式
-name 属性
+函数的length属性，不包括 rest 参数。
+```
+(function(a){}).length  //1
+(function(...a){}).length  //0
+(function(a,...b){}).length  //1
+```
+
+## 3. 严格模式
+在ES6中，只要参数使用了默认值、解构赋值、或者扩展运算符，就不能**显式**指定严格模式。
+
+有两种方法可以避免此类问题：
+1. 设定全局性的严格模式，这是合法的。
+```
+'use strict';
+
+function doSomething(a,b=a){
+  //code
+}
+```
+2. 把函数包在一个无参数的立即执行函数里边
+```
+const doSomething=(function(){
+  'use strict';
+  return function(value = 42){
+    return value ;
+  }
+}());
+```
+
+## 4. name 属性
 箭头函数
 基本用法
 使用注意点
