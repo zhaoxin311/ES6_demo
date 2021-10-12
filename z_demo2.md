@@ -407,6 +407,173 @@ foo.build({}).name  //"bound foo"
 ```
 
 ## 5. 箭头函数
+### 5.1 基本用法
+ES6 允许使用‘箭头’函数(=>)定义函数。
+```
+var f = v =>v;
+
+//等同于
+
+var f = function(v){
+  return v;
+}
+
+```
+如果箭头函数不需要参数或者需要多个参数，就使用一个圆括号代表参数部分。
+```
+var f = () =>5;
+//等同于
+var f = function(){ return 5 };
+
+var sum = (num1,num2)=>num1+num2;
+var sum = (num1, num2) => { return num1 + num2; }
+//等同于
+var f = function(num1,num2){ return num1+num2 };
+
+```
+由于大括号被解释为代码块，所以如果箭头函数直接返回一个对象，必须在对象外边加上括号，否则报错。
+```
+// 报错
+let getTempItem = id => { id: id, name: "Temp" };
+
+// 不报错
+let getTempItem = id => ({ id: id, name: "Temp" });
+
+//下面是一种特殊情况，虽然可以运行，但会得到错误的结果。
+let foo = () => { a: 1 };
+foo() // undefined
+//上述代码，原始意图是返回一个对象{a：1}，由于默认大括号为代码块，所以执行一行语句a:1。这时，a被解释为语句的标签，因此实际执行的语句是1，然后函数就结束了，没有返回值。
+
+```
+如果箭头函数只有一行语句，并且必须要返回值，可以采用以下写法：不需要使用大括号。
+let fn = () => void doesNotReturn();
+
+箭头函数可以与变量解构结合使用
+```
+//箭头函数
+const full = ({first,last}) => {return first +''+last}
+//等同于
+function full(person){
+  return person.first+''+person.last;
+}
+```
+箭头函数使得表达更加简洁。
+```
+const isEven = n => n % 2 === 0;
+const square = n => n * n;
+//等同于
+
+function isEvent(n){
+  return n % 2 === 0;
+}
+
+function square(n){
+  reutrn n * n;
+}
+```
+箭头函数的一个用途是简化回调函数：
+```
+//普通函数写法
+[1,2,3].map(function(x){
+  return x *x  //[1,4,9]
+})
+//箭头函数写法
+[1,2,3].map(x => x * x);
+
+//普通函数写法
+var result = values.sort(function(a,b){
+  return a-b;
+})
+//箭头函数写法
+var result = values.sort((a,b)=>a-b);
+
+//sort() 方法用原地算法对数组的元素进行排序，并返回数组。默认排序顺序是在将元素转换为字符串，然后比较它们的UTF-16代码单元值序列时构建的
+```
+下边是rest参数与箭头函数结合的例子，
+```
+const numbers = (...nums) => nums;
+numbers(1,2,3,4,5,6) //[1,2,3,4,5,6]
+
+const headAndTail = (head,...tail) => [head,tail]
+headAndTail(1,2,3,4,5,6)  //[1,[2,3,4,5]]
+```
+### 5.2 使用注意点
+箭头函数有几个使用注意点：
+1. 箭头函数没有自己的this对象。
+2. 不可以当做构造函数，也就是说，不可以对箭头函数使用new命令，否则会报错
+3. 不可以使用argument对象，该对象在函数体内不存在，如果要用，可以使用rest参数代替。
+4. 不可以使用yield命令，因此箭头函数不能用作Generator函数
+  - yield 关键字用来暂停和恢复一个生成器函数
+
+  ```
+  //以下代码是一个生成器函数的声明。
+    function* countAppleSales () {
+    var saleList = [3, 7, 5];
+    for (var i = 0; i < saleList.length; i++) {
+      yield saleList[i];
+    }
+  }
+
+  //一旦生成器函数已定义，可以通过构造一个迭代器来使用它。
+  var appleStore = countAppleSales(); // Generator { }
+  console.log(appleStore.next()); // { value: 3, done: false }
+  console.log(appleStore.next()); // { value: 7, done: false }
+  console.log(appleStore.next()); // { value: 5, done: false }
+  console.log(appleStore.next()); // { value: undefined, done: true }
+  ```
+
+以上四点，第一点最重要。对于普通函数内部的this指向函数运行时所在的对象，但是这一点在箭头函数中并不成立。箭头函数没有自己的this对象，内部的this就是定义上层作用域中的this。
+
+也就是说，箭头函数内部的this指向是固定的，普通函数的this指向是可变的
+
+```
+function foo() {
+  setTimeout(() => {
+    console.log('id:', this.id);
+  }, 100);
+}
+
+var id = 21;
+
+foo.call({ id: 42 });
+// id: 42
+
+//call() 方法使用一个指定的 this 值和单独给出的一个或多个参数来调用一个函数。
+
+//该方法的语法和作用与 apply() 方法类似，只有一个区别，就是 call() 方法接受的是一个参数列表，而 apply() 方法接受的是一个包含多个参数的数组。
+```
+上述代码中，foo函数内部是箭头函数，foo函数生成是箭头函数的定义才会生效，而她的真正执行要等到100ms之后
+
+如果是普通函数，执行this应该指向全局对象window，输出21
+
+但是箭头函数导致this 总是指向函数定义生效时所在的对象(本例时{id:42})，输出42
+
+
+**回调函数分别使用箭头函数和普通函数，对比他们的this指向**
+```
+function Timer(){
+  this.s1 = 0;
+  this.s2 = 0;
+  <!-- 箭头函数 -->
+  setInterval(() => this.s1++,1000);
+  <!-- 普通函数 -->
+  setInterval(function(){
+    this.s2++;
+  },1000);
+}
+
+var timer = new Timer();
+
+setInterval(()=>console.log('s1:',timer.s1),3100); //3
+setInterval(()=>console.log('s2:',timer.s2),3100); //0
+```
+上述代码，Timer内部设置了两个定时器，分别使用箭头函数和普通函数。
+
+箭头函数中的this绑定定义时所在的作用域(即Timer函数)，
+
+后者的this指向运行时所在的作用域(即全局对象)。
+
+所以 3100ms后 timer.s1被更新了3次，而timer.s2一次都没有更新
 
 
 
@@ -416,18 +583,15 @@ foo.build({}).name  //"bound foo"
 
 
 
-
-基本用法
-使用注意点
-不适用场合
-嵌套的箭头函数
-尾调用优化
-什么是尾调用？
-尾调用优化
-尾递归
-递归函数的改写
-严格模式
-尾递归优化的实现
+### 5.3 不适用场合
+### 5.4 嵌套的箭头函数
+## 6. 尾调用优化
+### 6.1 什么是尾调用？
+### 6.2 尾调用优化
+### 6.3 尾递归
+### 6.4 递归函数的改写
+### 6.5 严格模式
+### 6.6 尾递归优化的实现
 函数参数的尾逗号
 Function.prototype.toString()
 catch 命令的参数省略
