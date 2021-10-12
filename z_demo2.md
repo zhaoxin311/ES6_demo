@@ -716,11 +716,196 @@ var fix = f => (x => f(v => x(x)(v)))
 
 ## 6. 尾调用优化
 ### 6.1 什么是尾调用？
+尾调用(Tail Call)是函数式编程的一个重要概念，就是指某个函数的最后一步是调用另一个函数。
+```
+function f(x){
+  return g(x);
+}
+//函数f的最后一步是调用韩式g，这就叫做尾调用。
+```
+以下三种情况，都不属于尾调用：
+```
+//情况1
+function f(x){
+  let y = g(x);
+  return y;
+}
+
+//情况2
+function f(x){
+  return g(x)+1;
+}
+
+//情况3
+function f(x){
+  g(x);
+}
+```
+上面代码中，情况一是调用函数g之后，还有赋值操作，所以不属于尾调用，即使语义完全一样。情况二也属于调用后还有操作，即使写在一行内。情况三等同于下面的代码。
+```
+function f(x){
+  g(x);
+  return undefined;
+}
+```
+
+尾调用不一定出现在函数尾部，只要是最后一步操作即可。
+```
+function f(x){
+  if(x >0){
+    return m(x)
+  }
+  return n(x);
+}
+//函数m和n都属于尾调用，因为它们都是函数f的最后一步操作。
+```
+
 ### 6.2 尾调用优化
+注意，目前只有 Safari 浏览器支持尾调用优化，Chrome 和 Firefox 都不支持。
+
+尾调用优化实例
+```
+function f() {
+  let m = 1;
+  let n = 2;
+  return g(m + n);
+}
+f();
+
+// 等同于
+function f() {
+  return g(3);
+}
+f();
+
+// 等同于
+g(3);
+```
+注意，只有不再用到外层函数的内部变量，内层函数的调用帧才会取代外层函数的调用帧，否则就无法进行“尾调用优化”。
+```
+function addOne(a){
+  var one = 1;
+  function inner(b){
+    return b + one;
+  }
+  return inner(a);
+}
+```
+上面的函数不会进行尾调用优化，因为内层函数inner用到了外层函数addOne的内部变量one。
+
+
 ### 6.3 尾递归
+函数调用自身，称为递归。如果尾调用自身，就称为尾递归。
+
+递归非常耗费内存，因为需要同时保存成千上百个调用帧，很容易发生“栈溢出”错误（stack overflow）。但对于尾递归来说，由于只存在一个调用帧，所以永远不会发生“栈溢出”错误。
+
+```
+//递归写法
+//阶乘函数，计算n'的阶乘，最多保存n个调用记录，复杂度O(n)。
+function factorial(n) {
+  if (n === 1) return 1;
+  return n * factorial(n - 1);
+}
+factorial(5) // 120
+
+//尾递归写法
+//尾递归阶乘，只保留一个调用记录，复杂度O(1)。
+function factorial(n,total){
+  if (n ===1) return total
+  return factorial(n-1,n*total)
+}
+factorial(5,1) // 120
+```
+还有一个比较著名的例子，就是计算 Fibonacci 数列，也能充分说明尾递归优化的重要性。(私下了解吧!!)
+
+
 ### 6.4 递归函数的改写
+两种方法提高尾递归函数的可读性
+
+方法一是在尾递归函数之外，在提供一个正常形式的函数。
+```
+function tailFactorial(n,total){
+  if (n===1) return total;
+  return tailFactorial(n-1,n*total)
+}
+function factorial(n){
+  return tailFactorial(n,1)
+}
+factorial(5) //120
+```
+函数式编程有一个概念，叫做柯里化（currying），意思是将多参数的函数转换成单参数的形式。(了解即可 )
+
+方法二是采用ES6的函数默认值
+```
+function factorial(n, total = 1) {
+  if (n === 1) return total;
+  return factorial(n - 1, n * total);
+}
+
+factorial(5) // 120
+```
+总结一下，递归本质上是一种循环操作。纯粹的函数式编程语言没有循环操作命令，所有的循环都用递归实现，对于其他支持“尾调用优化”的语言（比如 Lua，ES6），只需要知道循环可以用递归代替，而一旦使用递归，就最好使用尾递归。
+
 ### 6.5 严格模式
+ES6 的尾调用优化只在严格模式下开启，正常模式是无效的。
+
+这是因为在正常模式下，函数内部有两个变量，可以跟踪函数的调用栈。
+
+- func.arguments：返回调用时函数的参数。
+- func.caller：返回调用当前函数的那个函数。
+
+尾调用优化发生时，函数的调用栈会改写，因此上面两个变量就会失真。严格模式禁用这两个变量，所以尾调用模式仅在严格模式下生效。
+```
+function restricted() {
+  'use strict';
+  restricted.caller;    // 报错
+  restricted.arguments; // 报错
+}
+restricted();
+```
+
 ### 6.6 尾递归优化的实现
-函数参数的尾逗号
-Function.prototype.toString()
-catch 命令的参数省略
+**(不太懂)**
+
+## 7. 函数参数的尾逗号
+ES2017 允许函数的最后一个参数有尾逗号（trailing comma）。
+
+这样的规定也使得，函数参数与数组和对象的尾逗号规则，保持一致了。
+## 8. Function.prototype.toString()
+ES2019 对函数实例的toString()方法做出了修改。
+
+toString()方法返回函数代码本身，以前会省略注释和空格。
+```
+function /* foo comment */ foo () {}
+
+foo.toString()
+// function foo() {}
+```
+上面代码中，函数foo的原始代码包含注释，函数名foo和圆括号之间有空格，但是toString()方法都把它们省略了。
+
+修改后的toString()方法，明确要求返回一模一样的原始代码。
+```
+function /* foo comment */ foo () {}
+
+foo.toString()
+// "function /* foo comment */ foo () {}"
+```
+## 9. catch 命令的参数省略
+JavaScript 语言的try...catch结构，以前明确要求catch命令后面必须跟参数，接受try代码块抛出的错误对象。
+```
+try {
+  // ...
+} catch (err) {
+  // 处理错误
+}
+```
+上面代码中，catch命令后面带有参数err。
+
+很多时候，catch代码块可能用不到这个参数。但是，为了保证语法正确，还是必须写。ES2019 做出了改变，允许catch语句省略参数。
+```
+try {
+  // ...
+} catch {
+  // ...
+}
+```
