@@ -374,7 +374,49 @@ const doSomething=(function(){
 ```
 
 ## 4. name 属性
-箭头函数
+函数的name属性，返回该函数的函数名。
+
+如果讲一个匿名函数赋值给一个变量，ES5的name属性会返回空字符串，ES6的name属性会返回实际的函数名。
+```
+var f = function(){};
+
+//ES5
+f.name //''
+
+//ES6
+f.name  //'f'
+
+//如果将一个具名函数赋值给一个变量，则ES5和ES6 的name属性都返回这个具名函数原本的名字。
+const bar = function baz() {};
+
+// ES5
+bar.name // "baz"
+
+// ES6
+bar.name // "baz"
+```
+```
+//Function构造函数返回的函数实例，name属性的值为anonymous。
+(new Function).name
+
+//build 返回的函数，name属性值会加上bound前缀
+function foo(){};
+foo.build({}).name  //"bound foo"
+
+(function(){}.build({}).name)  //"bound"
+```
+
+## 5. 箭头函数
+
+
+
+
+
+
+
+
+
+
 基本用法
 使用注意点
 不适用场合
