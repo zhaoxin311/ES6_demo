@@ -663,9 +663,56 @@ foo(2, 4, 6, 8)
 
 
 ### 5.4 嵌套的箭头函数
+箭头函数内部也可以再次使用箭头函数，就是箭头函数的嵌套。
+```
+//普通函数写法
+function insert(value) {
+  return {into: function (array) {
+    return {after: function (afterValue) {
+      array.splice(array.indexOf(afterValue) + 1, 0, value);
+      return array;
+    }};
+  }};
+}
 
+insert(2).into([1, 3]).after(1); //[1, 2, 3]
 
+//箭头函数写法
+let insert = (value) =>({ into:(arry) => ({after:(afterValue) =>{
+  array.splice(array.indexOf(afterValue) + 1, 0, value);
+  return array;
+} }) });
 
+insert(2).into([1, 3]).after(1); //[1, 2, 3]
+
+//indexOf()方法返回在数组中可以找到一个给定元素的第一个索引，如果不存在，则返回-1。
+
+//splice() 方法通过删除或替换现有元素或者原地添加新的元素来修改数组,并以数组形式返回被修改的内容。此方法会改变原数组。
+```
+上述代码中，array.indexOf(afterValue)指的是在array数组[1,3]中找到与给定元素afterValue(1) 的第一个索引值(0)，此时原代码简化为array.spilce(1,0,2),该代码的含义为：在array数组[1,3]中，从索引为1的位置开始删除0个元素插入2，最后得到数组[1,2,3].
+
+下边是一个部署管道机制(pipeline)的例子，即前一个函数的输出是后一个函数的输入。
+```
+const pipeline = (...funcs) =>
+  val => funcs.reduce((a,b) => b(a),val);
+
+const plus1 = a => a + 1;
+const mult2 = a => a * 2;
+//写法一
+const addThenMult = pipeline(plus1, mult2);
+addThenMult(5)  // 12
+//写法二
+mult2(plus1(5))  //12
+```
+箭头函数还有一个功能，就是可以很方便地改写 λ 演算。
+```
+// λ演算的写法
+fix = λf.(λx.f(λv.x(x)(v)))(λx.f(λv.x(x)(v)))
+
+// ES6的写法
+var fix = f => (x => f(v => x(x)(v)))
+               (x => f(v => x(x)(v)));
+```
 
 ## 6. 尾调用优化
 ### 6.1 什么是尾调用？
