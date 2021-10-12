@@ -575,16 +575,98 @@ setInterval(()=>console.log('s2:',timer.s2),3100); //0
 
 所以 3100ms后 timer.s1被更新了3次，而timer.s2一次都没有更新
 
+下面是一个例子，DOM 事件的回调函数封装在一个对象里面。
+```
+var handler = {
+  id: '123456',
 
+  init: function() {
+    document.addEventListener('click',
+      event => this.doSomething(event.type), false);
+  },
 
+  doSomething: function(type) {
+    console.log('Handling ' + type  + ' for ' + this.id);
+  }
+};
+```
+上述代码的init()方法中，使用了箭头函数里面的this，总是指向handler对象。如果回调函数是普通函数，那么运行this.doSomething()这一行会报错，因为此时this指向的是document对象。
 
+总之，箭头函数没有自己的this，导致内部的this就是外层代码块的this。正是因为他没有自己的this，所以也不能用作构造函数。
 
+除了this，以下三个变量在箭头函数之中也是不存在的，指向外层函数的对应变量：arguments、super、new.target。
+```
+function foo() {
+  setTimeout(() => {
+    console.log('args:', arguments);
+  }, 100);
+}
 
+foo(2, 4, 6, 8)
+// args: [2, 4, 6, 8]
+```
+上面代码中，箭头函数内部的变量arguments，其实是函数foo的arguments变量。
 
-
+另外，由于箭头函数没有自己的this，所以当然也就不能用call()、apply()、bind()这些方法去改变this的指向。
+```
+(function() {
+  return [
+    (() => this.x).bind({ x: 'inner' })()
+  ];
+}).call({ x: 'outer' });
+// ['outer']
+```
+上述代码中，箭头函数没有自己的this，所以bind方法无效，内部的this指向外部的this。
 
 ### 5.3 不适用场合
+由于箭头函数使得this从“动态”到“静态”，下边有两种场景不应该使用箭头函数。
+  1. 第一个场合是定义对象的方法，且该方法内部包括this。
+  ```
+  const cat = {
+    lives: 9,
+    jumps: () => {
+      this.lives--;
+    }
+  }
+  ```
+  cat.jumps()方法是一个箭头函数，这是错误的。
+  
+  调用cat.jumps()时，如果是普通函数，该方法内部的this指向cat；
+  
+  如果写成上面那样的箭头函数，使得this指向全局对象，因此不会得到预期结果。
+
+  这是因为对象不构成单独的作用域，导致jumps箭头函数定义时的作用域就是全局作用域。
+  ```
+  globalThis.s = 21;
+
+  const obj = {
+    s: 42,
+    m: () => console.log(this.s)
+  };
+
+  obj.m() // 21
+  ```
+  上述代码中，obj.m()使用了箭头函数，箭头函数内部的this指向的是全局作用域的对象，所以输出结果21
+
+  **由于以上原因，对象的属性建议使用传统的写法定义，不要用箭头函数定义。**
+
+2. 第二个场合是需要动态的this的时候，也不应该使用箭头函数
+  ```
+  var button = document.getElementById('press');
+  button.addEventListener('click', () => {
+    this.classList.toggle('on');
+  });
+  ```
+  上面代码运行时，点击按钮会报错，因为button的监听函数是一个箭头函数，导致里面的this就是全局对象。如果改成普通函数，this就会动态指向被点击的按钮对象。
+
+另外，如果函数体很复杂，有许多行，或者函数内部**有大量的读写操作**，不单纯是为了计算值，这时**也不应该使用箭头函数**，而是要使用普通函数，这样可以提高代码可读性。
+
+
 ### 5.4 嵌套的箭头函数
+
+
+
+
 ## 6. 尾调用优化
 ### 6.1 什么是尾调用？
 ### 6.2 尾调用优化
