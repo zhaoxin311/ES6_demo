@@ -297,13 +297,53 @@ foo()
 
 function foo(optional = undefined) { ··· }
 
+## 2. rest 参数
+ES6 引入 rest 参数（形式为...变量名），用于获取函数的多余参数，这样就不需要使用arguments对象了。rest参数搭配的变量是一个数组，该变量将多余的参数放入数组。
+```
+function add(...values) {
+  let sum = 0;
 
+  for (var val of values) {
+    sum += val;
+  }
 
+  return sum;
+}
 
+add(2, 5, 3) // 10
+```
+上述代码中，add是一个求和函数，利用rest参数，可以向该函数传入任意数目的参数。
 
+* rest参数代替argument变量的例子
+```
+// arguments变量的写法
+function sortNumbers() {
+  return Array.from(arguments).sort();
+}
 
+// rest参数的写法 (更简洁)
+const sortNumbers = (...numbers) => numbers.sort();
+```
+argument对象不是数组，而是一个类似数组的对象。所以为了使用数组的方法，必须使用Array.from先将其转为数组。
 
-rest 参数
+rest参数就不存在此类问题，他就是一个真正的数组，数组特有的方法它都可以使用。
+
+下边是一个利用rest参数改写数组push方法的例子：
+```
+function push (array,...items){
+  console.log(array);
+  items.forEach(function(item){
+    array.push(item);
+    console.log(item);
+  })
+}
+
+var a=[];
+push(a,1,2,3)
+
+```
+**注意**，rest 参数之后不能再有其他参数（即只能是最后一个参数），否则会报错。
+
 严格模式
 name 属性
 箭头函数
