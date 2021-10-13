@@ -1,0 +1,321 @@
+# ES6 笔记之第九章 数组的扩展
+
+## 1. 扩展运算符
+### 1.1 含义
+扩展运算符是三个点(...)。它好比rest参数的逆运算，讲一个数组转为用逗号分隔的参数序列。
+
+该运算符只要用于函数调用
+```
+function push (array,...items){
+  array.push(...items);
+}
+
+function add(x,y){
+  return x+y;
+}
+
+const numbers = [4,32]
+add(...number) //36
+```
+上边代码中，array.push(...items)和add(...numbers)这两行，都是函数的调用，他们都使用了扩展运算符。该运算符将一个数组，变为参数序列。
+
+```
+//扩展运算符可以和正常的函数参数结合使用
+function f(a,s,d,f,g){ }
+const args = [0,1];
+f(1,...args,3,...[5,7]);
+
+//扩展运算符后面还可以放置表达式
+const arr =[
+  ...(x>0?['a']:[ ]),
+  'b',
+];
+
+//如果扩展运算符最后是一个空数组，则不产生任何效果。
+[...[],1]  //[1]
+
+//注意，只有在函数调用时，扩展运算符才可以使用圆括号，否则报错。
+(...[1, 2])
+// Uncaught SyntaxError: Unexpected number
+
+console.log((...[1, 2]))
+// Uncaught SyntaxError: Unexpected number
+
+console.log(...[1, 2])
+// 1 2
+//上面三种情况，扩展运算符都放在圆括号里面，但是前两种情况会报错，因为扩展运算符所在的括号不是函数调用。
+
+```
+
+### 1.2 替代函数的 apply 方法
+由于扩展运算符可以展开数组，所以就不需要apply方法，将数组转为函数的参数了，
+```
+//ES5的写法
+function f(x,y,z){......}
+var args = [1,2,3]
+f.apply(null,args);
+
+//ES6的写法
+function f(x,y,z){......}
+let args = [1,2,3]
+f(...args)
+```
+1. 扩展运算符代替apply的例子，应用Math.max方法，简化求数组的最大元素。
+```
+//ES5写法
+Math.max.apply(null,...[1,2,3])
+//ES6写法
+Math.max(...[1,2,3])
+//等同于
+Math.max(1,2,3)
+```
+2. 通过push 将一个数组添加到另一个数组的尾部的例子
+```
+//ES5的写法
+const arr1 = [1,2,3,4];
+const arr2 = [7,7,5];
+Array.prototype.push.apply(arr1,arr2);
+
+//ES6的写法
+let arr1 = [1,2,3,4];
+let arr2 = [7,7,5];
+arr1.push(...arr2);
+```
+上面代码的 ES5 写法中，push方法的参数不能是数组，所以只好通过apply方法变通使用push方法。有了扩展运算符，就可以直接将数组传入push方法。
+
+3. 另一个例子
+```
+// ES5
+new (Date.bind.apply(Date, [null, 2015, 1, 1]))
+// ES6
+new Date(...[2015, 1, 1]);
+```
+
+### 1.3 扩展运算符的应用
+#### (1) 复制数组
+数组是复合的数据类型，直接复制的话，只是复制了指向底层数据结构的指针，而不是克隆一个全新的数组。
+```
+const a1 = [1,2,3];
+const a2 = a1;
+
+a2[0]=2;
+a1   //[2,2,3]
+```
+上述代码中，a2并不是a1的克隆，而是指向同一组数据的另一个指针。修改a2，会直接改变a1.
+
+```
+//es5只能用变通的方法来复制数组
+const a1 = [1,2,3];
+const a2 = a1.concat();
+a2[0]=2;
+a1   //[1,2,3]
+a2   //[2,2,3]
+
+//扩展运算符提供了复制数组的简便写法
+  const a1 = [1, 2];
+  // 写法一
+  const a2 = [...a1];
+  // 写法二
+  const [...a2] = a1;
+//上面的两种写法，a2都是a1的克隆。
+```
+```
+//concat() 方法用于合并两个或多个数组。此方法不会更改现有数组，而是返回一个新数组。
+const array1 = ['a', 'b', 'c'];
+const array2 = ['d', 'e', 'f'];
+const array3 = array1.concat(array2);
+
+console.log(array3);
+// expected output: Array ["a", "b", "c", "d", "e", "f"]
+
+如果省略了所有 valueN 参数，则 concat 会返回调用此方法的现存数组的一个浅拷贝。
+```
+
+#### (2) 合并数组
+扩展运算符提供了数组合并的新写法
+```
+const arr1 = ['a', 'b'];
+const arr2 = ['c'];
+const arr3 = ['d', 'e'];
+
+// ES5 的合并数组
+arr1.concat(arr2, arr3);
+// [ 'a', 'b', 'c', 'd', 'e' ]
+
+// ES6 的合并数组
+[...arr1, ...arr2, ...arr3]
+// [ 'a', 'b', 'c', 'd', 'e' ]
+//不过，这两种方法都是浅拷贝，使用的时候需要注意。深拷贝和浅拷贝的区别wolai笔记本
+console.log(-----------------------)
+const a1 = [{ foo: 1 }];
+const a2 = [{ bar: 2 }];
+
+const a3 = a1.concat(a2);
+const a4 = [...a1, ...a2];
+
+a3[0] === a1[0] // true
+a4[0] === a1[0] // true
+//上述代码中,a3,a4是用两种不同的方法合并而成的新数组，但是他们的元素都是对原数组元素的引用，就是浅拷贝。如果修改了引用变量的值，会同步反馈到新数组
+```
+
+#### (3) 与解构赋值结合
+1. 扩展正运算符可以和解构赋值结合用于生成数组
+```
+// ES5
+a = list[0], rest = list.slice(1)
+// ES6
+[a, ...rest] = list
+
+//slice() 方法返回一个新的数组对象，这一对象是一个由 begin 和 end 决定的原数组的浅拷贝（包括 begin，不包括end）。原始数组不会被改变。
+```
+
+2. 例子
+```
+const [first, ...rest] = [1, 2, 3, 4, 5];
+first // 1
+rest  // [2, 3, 4, 5]
+
+const [first, ...rest] = [];
+first // undefined
+rest  // []
+
+const [first, ...rest] = ["foo"];
+first  // "foo"
+rest   // []
+```
+3. 如果将扩展运算符用于数组赋值，只能将参数放在最后一位，否则会报错。
+```
+const [...butLast, last] = [1, 2, 3, 4, 5];
+// 报错
+
+const [first, ...middle, last] = [1, 2, 3, 4, 5];
+// 报错
+```
+
+#### (4) 字符串
+扩展运算符还可以将字符串转为真正的数组
+```
+//1.
+[...'hello']
+// [ "h", "e", "l", "l", "o" ]
+
+//2.
+//采用扩展运算符能够正确返回字符串长度的函数
+'x\uD83D\uDE80y'.length // 4
+[...'x\uD83D\uDE80y'].length // 3
+
+//3.
+function length(str) {
+  return [...str].length;
+}
+
+length('x\uD83D\uDE80y') // 3
+
+
+//4.如果不用扩展运算符，字符串的reverse操作就不正确。
+let str = 'x\uD83D\uDE80y';
+
+str.split('').reverse().join('')
+// 'y\uDE80\uD83Dx'
+
+[...str].reverse().join('')
+// 'y\uD83D\uDE80x'
+```
+split() 方法使用指定的分隔符字符串将一个String对象分割成子字符串数组，以一个指定的分割字串来决定每个拆分的位置。 
+
+reverse() 方法将数组中元素的位置颠倒，并返回该数组。数组的第一个元素会变成最后一个，数组的最后一个元素变成第一个。该方法会改变原数组。
+
+join() 方法将一个数组（或一个类数组对象）的所有元素连接成一个字符串并返回这个字符串。如果数组只有一个项目，那么将返回该项目而不使用分隔符。
+
+#### (5) 实现了Iterator接口的对象
+
+#### (6) Map 和 Set 结构，Generator 函数
+
+
+## 2. Array.from()
+
+
+
+
+
+
+
+## 3. Array.of()
+
+
+
+
+
+
+
+
+
+## 4. 数组实例的 copyWithin()
+
+
+
+
+
+
+
+
+## 5. 数组实例的 find() 和 findIndex()
+
+
+
+
+
+## 6. 数组实例的 fill()
+
+
+
+
+
+
+
+
+## 7. 数组实例的 entries()，keys() 和 values()
+
+
+
+
+
+
+
+## 8. 数组实例的 includes()
+
+
+
+
+
+
+## 9. 数组实例的 flat()，flatMap()
+
+
+
+
+
+
+
+
+
+
+## 10. 数组的空位
+
+
+
+
+
+
+
+
+
+
+## 11. Array.prototype.sort() 的排序稳定性
+
+
+
+
+
+
+
