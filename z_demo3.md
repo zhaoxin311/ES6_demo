@@ -438,10 +438,43 @@ i32a.copyWithin(0, 2);  //[3,4,5,4,5]
 ```
 
 ## 5. 数组实例的 find() 和 findIndex()
+数组实例的find方法，用于找出第一个符合条件的数组成员。它的参数是一个回调函数，所有数组成员依次执行该回调函数直到查找到第一个符合条件的元素，找到返回true,找不到返回undefined。
+```
+[1,4,-5,10].find((x) => x < 0) //-5
 
+[1,5,10,15].find(function(value,index,arr){
+  return value > 9
+}) //10
+//上述代码中，find的回调函数有三个参数，依次为当前值，当前的位置，原数组。
 
+```
 
+数组实例的findIndex方法的用法与find方法相似，都是返回第一个符合条件的**数组成员的位置**，如果没有元素符合条件就返回-1.
+```
+[1, 5, 10, 15].findIndex(function(value, index, arr) {
+  return value > 9;
+}) // 2
+```
 
+上述两个方法都可以接受第二个参数，用来绑定回调函数的this对象。
+```
+function f(v){
+  return v > this.age;
+}
+let person = {name:'zhaoxin',age:20};
+[10,12,26,43].find(f,person)
+```
+上述代码中，find函数接收了第二个参数person对象，回调函数中的this对象指的就是person对象。
+
+另外，这两个方法都可以发现NaN，弥补了数组的indexOf方法的不足。
+```
+[NaN].indexOf(NaN)
+// -1
+
+[NaN].findIndex(y => Object.is(NaN, y))
+// 0
+```
+上面代码中，indexOf方法无法识别数组的NaN成员，但是findIndex方法可以借助Object.is方法做到。
 
 ## 6. 数组实例的 fill()
 
