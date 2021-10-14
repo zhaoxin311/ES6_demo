@@ -298,6 +298,85 @@ var arr1 = [].slice.call(arrayLike); // ['a', 'b', 'c']
 // ES6的写法
 let arr2 = Array.from(arrayLike); // ['a', 'b', 'c']
 ```
+在实际应用中，常见的数组的对象是DOM操作的返回的NodeList集合，以及函数内部的arguments对象，Array.from都可以将它们转化为真正的数组。
+```
+// NodeList对象
+let ps = document.querySelectorAll('p');
+Array.from(ps).filter(p => {
+  return p.textContent.length > 100;
+});
+
+// arguments对象
+function foo() {
+  var args = Array.from(arguments);
+  // ...
+}
+```
+上述的代码中，querySelectorAll方法返回的是一个类似数组的对象，可以将这个对象转化为真正的数组，在使用filter方法
+
+
+只要是部署了Iterator接口的数据结构，Array.from都能将其转为真正的数组
+```
+Array.from('hello')  //['h', 'e', 'l', 'l', 'o']
+
+let namesSet = new Set(['a','s'])
+Array.from(namesSet)  //['a','s']
+
+//字符串和Set结构都是自带Iterator接口，可以直接使用该方法转为数组
+
+```
+如果参数是一个真正的数组，Array.from会返回一个一模一样的新数组。
+
+扩展运算符(...)也可以将某些数据结构转为数组。
+```
+// arguments对象
+function foo() {
+  const args = [...arguments];
+}
+
+// NodeList对象
+[...document.querySelectorAll('div')]
+```
+扩展运算符背后调用的是遍历器接口(Symbol.iterator)，如果一个对象没有部署这个，就无法转换。Array.from 方法还支持类似数组的对象，该对象必须有length属性。总的来说 任何有length 属性的对象都可以通过该方法转为数组，而此时扩展运算符就无法转换。
+
+对于还没有部署该方法的浏览器可以用Array.prototype.slice方法替代。
+```
+const toArray = (() =>
+  Array.from ? Array.from : obj => [].slice.call(obj)
+)();
+```
+
+Array.from()还可以接收第二个参数，作用类似于数组的map方法。用来对数组的每个元素进行处理，将处理后的值放入到返回的数组中。
+```
+Array.from(arrayLike, x => x * x);
+// 等同于
+Array.from(arrayLike).map(x => x * x);
+Array.from([1, 2, 3], (x) => x * x)
+// [1, 4, 9]
+
+//下面的例子是取出一组 DOM 节点的文本内容。
+let spans = document.querySelectorAll('span.name');
+// map()
+let names1 = Array.prototype.map.call(spans, s => s.textContent);
+// Array.from()
+let names2 = Array.from(spans, s => s.textContent)
+
+//下面的例子将数组中布尔值为false的成员转为0。
+Array.from([1, , 2, , 3], (n) => n || 0)
+// [1, 0, 2, 0, 3]
+
+//另一个例子是返回各种数据的类型。
+function typesOf () {
+  return Array.from(arguments, value => typeof value)
+}
+typesOf(null, [], NaN)
+// ['object', 'object', 'number']
+
+```
+如果map函数里面用到了this关键字，还可以传入Array.from的第三个参数，用来绑定this。
+
+Array.from()方法的另一个应用是将字符串转换为数组，并返回字符串的长度。
+
 
 
 
