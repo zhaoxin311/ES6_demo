@@ -377,20 +377,33 @@ typesOf(null, [], NaN)
 
 Array.from()方法的另一个应用是将字符串转换为数组，并返回字符串的长度。
 
-
-
-
-
-
 ## 3. Array.of()
+Array.of()方法用于将一组数转换成数组。
+```
+Array.of(3,11,2)  //[3,11,2]
+Array.of(3)  //[3]
+Array.of(3,11,2).length  //3
+Array.of() // []
+Array.of(undefined) // [undefined]
 
+Array() // []
+Array(3) // [, , ,]
+Array(3, 11, 8) // [3, 11, 8]
+```
+这个方法的目的是为了弥补数组构造函数Array()的不足，Array()方法会因为参数个数不同导致行为有差异。
 
+Array()方法只有在参数个数不少于2的时候，才会返回由参数组层的新数组，当参数只有一个正整数时，实际上制定的是数组的长度。
 
+Array.of()基本上可以替代Array()或new Array(),不存在因参数个数不同而曹植的重载。
 
+Array.of()总是返回参数值组成的数组。如果没有参数就返回一个空数组。
 
-
-
-
+Array.of()方法实现原理：
+```
+function ArrayOf(){
+  return [].slice.call(arguments)
+}
+```
 
 ## 4. 数组实例的 copyWithin()
 
