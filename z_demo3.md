@@ -593,21 +593,122 @@ arr.flatMap(function callback(currentValue[, index[, array]]) {
 flatMap()方法还可以有第二个参数，用来绑定遍历函数里面的this。
 
 ## 10. 数组的空位
+数组的空位，数组的某一个位置没有任何值，Array后早函数返回的数组都是空位。
+Array(3)  //[,,,] 返回三个空位
 
+**注意** 空位不是undefined，一个位置的值等于undefined，依然是有值的，空位没有任何值
+0 in [undefined, undefined, undefined] // true 0号位有值
+0 in [, , ,] // false  0号位没值
 
+**es5对于空位的处理** 很不一致，大多数情况下会忽略
+1. forEach(), filter(), reduce(), every() 和some()都会跳过空位。
+2. map()会跳过空位，但会保留这个值
+3. join()和toString()会将空位视为undefined，而undefined和null会被处理成空字符串。
+```
+// forEach方法
+[,'a'].forEach((x,i) => console.log(i)); // 1
 
+// filter方法
+['a',,'b'].filter(x => true) // ['a','b']
 
+// every方法
+[,'a'].every(x => x==='a') // true
 
+// reduce方法
+[1,,2].reduce((x,y) => x+y) // 3
 
+// some方法
+[,'a'].some(x => x !== 'a') // false
 
+// map方法
+[,'a'].map(x => 1) // [,1]
 
+// join方法
+[,'a',undefined,null].join('#') // "#a##"
+
+// toString方法
+[,'a',undefined,null].toString() // ",a,,"
+```
+es6明确将空位转为undefined。
+```
+//Array.from()方法会将数组的空位转为undefined，不会忽略空位
+Array.from(['a',,'b'])  // [ "a", undefined, "b" ]
+
+//扩展运算符(...)也会转为undefined
+[...['a', ,'s,]]  //[ "a", undefined, "b" ]
+
+//copyWithin()会连着空位一起拷贝
+[,'a','b',,].copyWithin(2,0) // [,"a",,"a"]
+//从0位开始读取数据，读到最后，从2号位开始覆盖
+
+//fill()会将空位视为正常的数组位置。
+new Array(3).fill('a') // ["a","a","a"]
+
+//for...of循环也会遍历空位。
+
+let arr = [, ,];
+for (let i of arr) {
+  console.log(1);
+}
+// 1
+// 1
+//数组arr有两个空位，for..of 没有忽略，如果改成map方法遍历 空位会跳过。
+
+```
+entries()、keys()、values()、find()和findIndex()会将空位处理成undefined。
+```
+// entries()
+[...[,'a'].entries()] // [[0,undefined], [1,"a"]]
+
+// keys()
+[...[,'a'].keys()] // [0,1]
+
+// values()
+[...[,'a'].values()] // [undefined,"a"]
+
+// find()
+[,'a'].find(x => true) // undefined
+
+// findIndex()
+[,'a'].findIndex(x => true) // 0
+```
+由于空位的处理规则非常不统一，所以建议避免出现空位。
 
 
 ## 11. Array.prototype.sort() 的排序稳定性
+排序稳定性是排序算法的重要属性，指的是排序关键字相同的项目，排序前后的顺序不变。
+```
+const arr = [
+  'peach',
+  'straw',
+  'apple',
+  'spork'
+];
 
+const stableSorting = (s1, s2) => {
+  if (s1[0] < s2[0]) return -1;
+  return 1;
+};
 
+arr.sort(stableSorting)
+// ["apple", "peach", "straw", "spork"]
+```
+上面代码对数组arr按照首字母进行排序。排序结果中，straw在spork的前面，跟原始顺序一致，所以排序算法stableSorting是稳定排序。
+```
+const unstableSorting = (s1, s2) => {
+  if (s1[0] <= s2[0]) return -1;
+  return 1;
+};
 
+arr.sort(unstableSorting)
+// ["apple", "peach", "spork", "straw"]
+```
+上面代码中，排序结果是spork在straw前面，跟原始顺序相反，所以排序算法unstableSorting是不稳定的。
 
+常见的排序算法之中，
 
+插入排序、合并排序、冒泡排序等都是稳定的，
 
+堆排序、快速排序等是不稳定的。
 
+不稳定排序的主要缺点是，多重排序时可能会产生问题。
