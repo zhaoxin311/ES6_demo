@@ -535,11 +535,21 @@ console.log(entries.next().value); // [2, 'c']
 ```
 
 ## 8. 数组实例的 includes()
+Array.prototype.includes方法返回一个布尔值，表示某个数组是否包含给定的值，与字符串的includes方法类似。
+```
+[1, 2, 3].includes(2)     // true
+[1, 2, 3].includes(4)     // false
+[1, 2, NaN].includes(NaN) // true
+```
 
-
-
-
-
+该方法可以接受第二个参数，表示搜素的起始位置，默认为0;如果第二个参数为负数，表示倒数的位置;如果第二个参数大于数组的长度，则会重置为从0开始
+```
+[1, 2, 3].includes(3, 3);  // false
+[1, 2, 3].includes(3, -1); // true
+```
+**另外**，Map 和 Set 数据结构有一个has方法，需要注意与includes区分。
+- Map结构的has方法，用于查找键名，例如：Map prototype.has(key)
+- Set结构的has方法，用来查找值，例如：Set.prototype.has(value)
 
 ## 9. 数组实例的 flat()，flatMap()
 
