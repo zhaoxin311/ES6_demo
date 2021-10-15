@@ -477,13 +477,30 @@ let person = {name:'zhaoxin',age:20};
 上面代码中，indexOf方法无法识别数组的NaN成员，但是findIndex方法可以借助Object.is方法做到。
 
 ## 6. 数组实例的 fill()
+fill()方法使用给定值，填充一个数组。
+```
+//fill方法用于数组的初始化很便利，当数组中已有元素，会被全部抹去。
+[q,q,w,e,z].fill(7)  //[7,7,7,7,7]
 
+new Array(3).fill(7) //[7,7,7]
+```
 
+fill方法还可以接收第二个和第三个参数。用于指定填充的起始位置和结束位置。
+```
+[g,f,d,s,a].fill(7,1,3)  //[g,7,7,s,a]
+//fill方法从1号位开始，像原始数组填充7，到3号位结束。
+```
 
+**注意** 如果填充的类型是对象，那么被赋值的是同一内存地址的对象，而不是深拷贝对象。
+```
+let arr = new Array(3).fill({name:'zhaoxin'});
+arr[0].name = 'xiaoxiannv';
+arr  //[{name:'xiaoxiannv'},{name:'xiaoxiannv'},{name:'xiaoxiannv'}]
 
-
-
-
+let arr = new Array(3).fill([])
+arr[0].push(5)
+arr  //[[5],[5],[5]]
+```
 
 ## 7. 数组实例的 entries()，keys() 和 values()
 
