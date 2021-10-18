@@ -25,5 +25,28 @@ f(1,2) //Object {x:1,y:2}
 ```
 
 
+```
+//demo1
+const foo = 'bar';
+const baz = {foo}
+baz  //{foo:"bar"}
+
+//等同于
+const baz = {foo:foo}
+
+//demo2
+function f(x,y){
+  return {x,y}
+}
+
+//等同于
+function f(x,y){
+  return {x:x,y:y}
+}
+f(1,2) //Object {x:1,y:2}
+```
+
+
+
 
 ### 1.1 含义
