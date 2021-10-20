@@ -138,6 +138,79 @@ Reflect.ownKeys({ [Symbol()]:0, b:0, 10:0, 2:0, a:0 })
 ```
 返回一个数组，包含参数对象的所有属性，次序为：首先数值属性2和10，其次字符串属性b和a，最后是Symbol属性。
 
+## 5. super关键字
+this 关键字 总是指向函数所在的当前对象，ES6有新增了另一个类似关键字 super ，指向当前对象的原型对象。
+```
+const proto = {
+  foo: 'hello'
+};
+
+const obj = {
+  foo: 'world',
+  find() {
+    return super.foo;
+  }
+};
+//通过super.foo 引用了原型对象proto的foo属性。
+Object.setPrototypeOf(obj, proto);
+obj.find() // "hello"
+```
+Object.setPrototypeOf() 方法设置一个指定的对象的原型 ( 即, 内部[[Prototype]]属性）到另一个对象或  null。
+
+obj  要设置其原型的对象。prototype  该对象的新原型(一个对象 或 null).
+
+**注意** super关键字表示原型对象时，只能用在对象的方法中，用在其他方法都会报错，
+
+```
+// 报错  super用在属性里边
+const obj = {
+  foo: super.foo
+}
+
+// 报错  super用在一个函数里面，然后赋值给foo属性。
+const obj = {
+  foo: () => super.foo
+}
+
+// 报错  super用在一个函数里面，然后赋值给foo属性。
+const obj = {
+  foo: function () {
+    return super.foo
+  }
+}
+```
+
+JavaScript 引擎内部，super.foo等同于Object.getPrototypeOf(this).foo（属性）或Object.getPrototypeOf(this).foo.call(this)（方法）。
+```
+const proto = {
+  x: 'hello',
+  foo() {
+    console.log(this.x);
+  },
+};
+
+const obj = {
+  x: 'world',
+  foo() {
+    super.foo();
+  }
+}
+
+Object.setPrototypeOf(obj, proto);
+
+obj.foo() // "world"
+```
+上面代码中，super.foo指向原型对象proto的foo方法，但是绑定的this却还是当前对象obj，因此输出的就是world。
+
+this 关键字 谁调用指向谁
+
+
+
+
+
+
+
+
 
 
 
